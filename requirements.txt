@@ -1,0 +1,6 @@
+torch>=2.2
+numpy
+pillow
+datasets
+open_clip_torch
+sentence-transformers
