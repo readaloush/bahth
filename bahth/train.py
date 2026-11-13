@@ -123,6 +123,7 @@ def main():
     ap.add_argument("--steps", type=int, default=1200)
     ap.add_argument("--batch", type=int, default=128)
     ap.add_argument("--lr", type=float, default=2e-5)
+    ap.add_argument("--recipes", default="contrastive,distill,both")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(exist_ok=True)
@@ -172,7 +173,7 @@ def main():
     results = {"student": a.student, "parameters": sum(p.numel() for p in fresh().parameters()), "runs": {}}
     results["runs"]["starting model"] = {"metrics": evaluate(fresh())}
     best_name, best_sel = None, -1.0
-    for recipe in ("contrastive", "distill", "both"):
+    for recipe in a.recipes.split(","):
         if recipe != "contrastive" and not coco:
             continue
         student = fresh()
