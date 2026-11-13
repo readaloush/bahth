@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bahth بحث: photo search in Arabic, Turkish and English</title>
+<meta name="description" content="Type what you are looking for in Arabic, Turkish or English and search 24,997 photos. A fine-tuned multilingual CLIP text encoder running in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table:#EDF2F5;      /* light table glass */
+  --glow:#FBFDFE;       /* lit centre of the table */
+  --ink:#1B2530;        /* blue-black writing ink */
+  --quiet:#586775;
+  --rebate:#000;        /* unexposed film edge */
+  --edge:#F0A81C;       /* edge-print amber */
+  --grease:#D22B2B;     /* grease pencil */
+  --rule:#C9D4DC;
+  --frame-h:150px;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--table) linear-gradient(var(--glow),var(--table) 520px) no-repeat;color:var(--ink);
+  font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;line-height:1.5}
+a{color:inherit;text-underline-offset:.18em}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--grease);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+
+header.top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:22px 0 0}
+.mark{font-weight:600;font-size:1.05rem;text-decoration:none}
+.mark span{font-weight:400;color:var(--quiet);margin-inline-start:.4em}
+nav.langs{display:flex;gap:18px;font-size:.88rem}
+nav.langs button{background:none;border:0;padding:0;font:inherit;color:var(--quiet);cursor:pointer}
+nav.langs button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:.3em}
+
+.ask{padding:64px 0 28px}
+h1{font-size:1rem;font-weight:400;color:var(--quiet);margin:0 0 14px}
+form{display:flex;align-items:flex-end;gap:18px;border-bottom:2px solid var(--ink)}
+#q{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:500 clamp(1.5rem,4.4vw,2.9rem)/1.25 "IBM Plex Sans","IBM Plex Sans Arabic",sans-serif;
+  padding:4px 0 10px;letter-spacing:-.01em}
+#q::placeholder{color:#9AA8B4;opacity:1}
+#q:focus{outline:none}
+form:focus-within{border-color:var(--grease)}
+button.go{flex:none;margin-bottom:12px;background:var(--ink);color:var(--glow);border:0;border-radius:2px;font:500 .95rem inherit;font-family:inherit;padding:.6em 1.15em;cursor:pointer}
+button.go:hover{background:#000}
+.tries{margin:18px 0 0;font-size:.95rem;color:var(--quiet);display:flex;flex-wrap:wrap;gap:6px 20px}
+.tries button{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:.25em;cursor:pointer;text-align:start}
+.tries button:hover{text-decoration-color:var(--ink)}
+
+.notice{margin:22px 0 0;padding:16px 18px;background:var(--glow);border-inline-start:4px solid var(--grease);max-width:62ch}
+.notice p{margin:0 0 12px}
+.notice button{background:var(--grease);color:#fff;border:0;border-radius:2px;font:500 .95rem inherit;font-family:inherit;padding:.55em 1em;cursor:pointer}
+.bar{height:6px;background:var(--rule);margin-top:12px}
+.bar i{display:block;height:100%;width:0;background:var(--grease);transition:width .2s linear}
+[hidden]{display:none!important}
+
+.sheet{background:var(--rebate);color:var(--edge);margin:26px 0 0;padding:14px 18px 20px;min-height:230px}
+.sheet .edgeprint{display:flex;justify-content:space-between;gap:16px;font-size:.78rem;font-weight:500;padding:0 2px 12px;font-variant-numeric:tabular-nums}
+.sheet .edgeprint bdi{color:#fff;font-weight:400}
+.frames{display:flex;flex-wrap:wrap;gap:18px 14px;list-style:none;margin:0;padding:0}
+.frames li{position:relative;flex:0 0 auto}
+.frames a.ph{display:block;height:var(--frame-h);background:#1c1c1c;overflow:hidden}
+.frames img{display:block;height:100%;width:100%;object-fit:cover}
+.frames .cap{display:flex;gap:10px;justify-content:space-between;font-size:.72rem;padding-top:5px;font-variant-numeric:tabular-nums}
+.frames .cap b{font-weight:600}
+.frames .cap a{color:var(--edge);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
+.frames .cap a:hover{text-decoration:underline;opacity:1}
+.frames svg.pick{position:absolute;inset:-12px -12px 12px -12px;width:calc(100% + 24px);height:calc(var(--frame-h) + 24px);pointer-events:none;overflow:visible}
+.frames svg.pick path{fill:none;stroke:var(--grease);stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .7s .15s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.sheet .empty{color:#fff;font-size:.95rem;padding:60px 4px}
+.also{margin:14px 0 0;font-size:.92rem;color:var(--quiet)}
+.also button{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:.25em;cursor:pointer}
+.also span+span::before{content:"";display:inline-block;width:18px}
+
+section.notes{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;padding:72px 0 40px}
+h2{font-size:1.35rem;font-weight:600;margin:0 0 12px;letter-spacing:-.01em}
+.notes p{margin:0 0 14px;max-width:62ch}
+table{border-collapse:collapse;width:100%;margin:8px 0 14px;font-variant-numeric:tabular-nums;font-size:.93rem}
+th,td{text-align:end;padding:7px 0 7px 14px;border-bottom:1px solid var(--rule);font-weight:400}
+th:first-child,td:first-child{text-align:start;padding-inline-start:0}
+thead th{color:var(--quiet);font-size:.82rem;border-bottom-color:var(--ink)}
+tr.sub td{color:var(--quiet);font-size:.82rem;border:0;padding-top:16px}
+td.up{font-weight:600}
+footer{border-top:1px solid var(--rule);padding:20px 0 48px;color:var(--quiet);font-size:.85rem}
+footer p{margin:0 0 6px;max-width:80ch}
+
+@media (max-width:760px){
+  html{font-size:16px} :root{--frame-h:112px}
+  .wrap{padding:0 18px} .ask{padding:40px 0 20px}
+  section.notes{grid-template-columns:1fr;gap:36px;padding-top:48px}
+  .sheet{margin-inline:-18px;padding-inline:14px}
+  form{gap:10px}
+}
+@media (prefers-reduced-motion:reduce){.frames svg.pick path{animation:none;stroke-dashoffset:0}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="https://github.com/readaloush/bahth">Bahth <span lang="ar">بحث</span></a>
+    <nav class="langs" aria-label="Language">
+      <button data-ui="en">English</button><button data-ui="tr">Türkçe</button><button data-ui="ar" lang="ar">العربية</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="ask">
+      <h1 data-t="h1"></h1>
+      <form id="form" role="search">
+        <input id="q" type="search" autocomplete="off" spellcheck="false" dir="auto" aria-labelledby="h1label">
+        <button class="go" type="submit" data-t="go"></button>
+      </form>
+      <span id="h1label" hidden></span>
+      <p class="tries" id="tries"></p>
+      <div class="notice" id="notice" hidden>
+        <p id="noticeText"></p>
+        <button type="button" id="load" data-t="load"></button>
+        <div class="bar" id="bar" hidden><i></i></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="wrap">
+  <div class="sheet" id="sheet" aria-live="polite">
+    <div class="edgeprint"><span id="edgeL"></span><span id="edgeR"></span></div>
+    <ol class="frames" id="frames"></ol>
+  </div>
+  <p class="also" id="also" hidden></p>
+</div>
+
+<div class="wrap">
+  <section class="notes">
+    <div>
+      <h2 data-t="m_h"></h2>
+      <p data-t="m_p1"></p>
+      <table>
+        <thead><tr><th data-t="t_set"></th><th>English</th><th lang="ar">العربية</th><th>Türkçe</th></tr></thead>
+        <tbody>
+          <tr class="sub"><td colspan="4" data-t="t_flickr"></td></tr>
+          <tr><td data-t="t_before"></td><td>48.9</td><td>24.8</td><td>25.8</td></tr>
+          <tr><td data-t="t_after"></td><td class="up">60.2</td><td class="up">44.5</td><td class="up">47.3</td></tr>
+          <tr class="sub"><td colspan="4" data-t="t_xtd"></td></tr>
+          <tr><td data-t="t_before"></td><td>47.3</td><td>23.2</td><td>33.3</td></tr>
+          <tr><td data-t="t_after"></td><td class="up">50.5</td><td class="up">34.2</td><td class="up">41.1</td></tr>
+        </tbody>
+      </table>
+      <p data-t="m_p2"></p>
+      <p data-t="m_p3"></p>
+    </div>
+    <div>
+      <h2 data-t="b_h"></h2>
+      <p data-t="b_p1"></p>
+      <p data-t="b_p2"></p>
+      <p data-t="b_p3"></p>
+      <p><a href="https://github.com/readaloush/bahth" data-t="b_link"></a></p>
+    </div>
+  </section>
+  <footer>
+    <p data-t="f1"></p>
+    <p data-t="f2"></p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const T = {
+en:{h1:"Search 24,997 photos in Arabic, Turkish or English",go:"Search",ph:"a lighthouse at sunset",try:"Try",
+  need:"Your own query runs in your browser, not on a server. It needs the model: {mb} MB, downloaded once.",load:"Download the model and search",
+  loading:"Downloading the model: {a} of {b} MB",starting:"Starting the model",searching:"Searching",
+  edge:"{n} photos searched",ms:"query read in {e} ms, photos ranked in {s} ms",ready:"ready-made result",
+  also:"Same search in",fail:"The search could not run: {m}. Reload the page and try again.",empty:"Type a query above, or pick one of the examples.",
+  by:"Photo by {n} on Unsplash",
+  m_h:"How often the first photo is the right one",
+  m_p1:"Each test query is a caption written for one specific photo. The number is the share of queries, in percent, where that photo comes back first out of 1,000.",
+  t_set:"Recall@1, %",t_flickr:"Flickr8k test photos, the kind the model trained on",t_xtd:"XTD photos, never seen in training",t_before:"Before fine-tuning",t_after:"After, as it runs here",
+  m_p2:"Arabic and Turkish nearly double on familiar photos. On unseen photos the gain is about half that, and Arabic stays the weakest: the first result is right for roughly one query in three.",
+  m_p3:"The numbers are from one training run per recipe, so a difference of a point is noise. The model on this page is the int8 version, which gives up 1 to 3.5 points for a file four times smaller.",
+  b_h:"How it is built",
+  b_p1:"A CLIP image model turns every photo into a vector once. It is never retrained, so the photo index stays valid.",
+  b_p2:"Only the multilingual text encoder is trained: Arabic, Turkish and English captions are pulled towards the photos they describe, and Arabic sentences towards their English translations.",
+  b_p3:"The same model also runs as a FastAPI service in Docker. Here it runs in your browser with ONNX Runtime, with its vocabulary cut to Latin and Arabic script to save 36 MB.",
+  b_link:"Code, notebooks and full results on GitHub",
+  f1:"Photos are from the Unsplash Lite dataset and are loaded from Unsplash. Each frame links to the photo and its photographer.",
+  f2:"Training data: Flickr8k with Arabic and Turkish captions, Arabic MS-COCO caption pairs. Evaluation: Flickr8k test and XTD. Built by Read Aloush."},
+tr:{h1:"24.997 fotoğrafta Arapça, Türkçe veya İngilizce arayın",go:"Ara",ph:"gün batımında deniz feneri",try:"Deneyin",
+  need:"Kendi sorgunuz sunucuda değil, tarayıcınızda çalışır. Bunun için model gerekir: {mb} MB, bir kez indirilir.",load:"Modeli indir ve ara",
+  loading:"Model indiriliyor: {a} / {b} MB",starting:"Model başlatılıyor",searching:"Aranıyor",
+  edge:"{n} fotoğraf tarandı",ms:"sorgu {e} ms'de okundu, fotoğraflar {s} ms'de sıralandı",ready:"hazır sonuç",
+  also:"Aynı arama",fail:"Arama çalıştırılamadı: {m}. Sayfayı yenileyip yeniden deneyin.",empty:"Yukarıya bir sorgu yazın veya örneklerden birini seçin.",
+  by:"Fotoğraf: {n}, Unsplash",
+  m_h:"İlk fotoğraf ne sıklıkla doğru çıkıyor",
+  m_p1:"Her test sorgusu belirli bir fotoğraf için yazılmış bir açıklamadır. Sayı, o fotoğrafın 1.000 fotoğraf arasında ilk sırada geldiği sorguların yüzdesidir.",
+  t_set:"Recall@1, %",t_flickr:"Flickr8k test fotoğrafları, modelin eğitildiği türden",t_xtd:"XTD fotoğrafları, eğitimde hiç görülmedi",t_before:"İnce ayardan önce",t_after:"Sonra, burada çalıştığı haliyle",
+  m_p2:"Tanıdık fotoğraflarda Arapça ve Türkçe neredeyse iki katına çıkıyor. Görülmemiş fotoğraflarda kazanç bunun yaklaşık yarısı ve Arapça en zayıf dil olarak kalıyor: ilk sonuç kabaca üç sorgudan birinde doğru.",
+  m_p3:"Sayılar her tarif için tek bir eğitim koşusundan geliyor; bir puanlık fark gürültüdür. Bu sayfadaki model int8 sürümüdür: dört kat küçük bir dosya karşılığında 1 ila 3,5 puan kaybeder.",
+  b_h:"Nasıl kuruldu",
+  b_p1:"Bir CLIP görüntü modeli her fotoğrafı bir kez vektöre çevirir. Hiç yeniden eğitilmez, bu yüzden fotoğraf indeksi geçerli kalır.",
+  b_p2:"Yalnızca çok dilli metin kodlayıcı eğitilir: Arapça, Türkçe ve İngilizce açıklamalar anlattıkları fotoğraflara, Arapça cümleler de İngilizce çevirilerine yaklaştırılır.",
+  b_p3:"Aynı model Docker içinde bir FastAPI servisi olarak da çalışır. Burada ONNX Runtime ile tarayıcınızda çalışıyor; 36 MB kazanmak için kelime dağarcığı Latin ve Arap yazısına indirildi.",
+  b_link:"Kod, not defterleri ve tüm sonuçlar GitHub'da",
+  f1:"Fotoğraflar Unsplash Lite veri setindendir ve Unsplash'ten yüklenir. Her kare fotoğrafa ve fotoğrafçısına bağlanır.",
+  f2:"Eğitim verisi: Arapça ve Türkçe açıklamalı Flickr8k, Arapça MS-COCO açıklama çiftleri. Değerlendirme: Flickr8k test ve XTD. Hazırlayan: Read Aloush."},
+ar:{h1:"ابحث في 24,997 صورة بالعربية أو التركية أو الإنجليزية",go:"ابحث",ph:"منارة عند غروب الشمس",try:"جرّب",
+  need:"استعلامك الخاص يعمل في متصفحك وليس على خادم. يحتاج إلى النموذج: {mb} ميغابايت، يُنزَّل مرة واحدة.",load:"نزّل النموذج وابحث",
+  loading:"جارٍ تنزيل النموذج: {a} من {b} ميغابايت",starting:"جارٍ تشغيل النموذج",searching:"جارٍ البحث",
+  edge:"تم البحث في {n} صورة",ms:"قُرئ الاستعلام في {e} مللي ثانية ورُتّبت الصور في {s} مللي ثانية",ready:"نتيجة جاهزة",
+  also:"البحث نفسه",fail:"تعذّر تشغيل البحث: {m}. أعد تحميل الصفحة وحاول مرة أخرى.",empty:"اكتب استعلامًا في الأعلى أو اختر أحد الأمثلة.",
+  by:"تصوير {n} على Unsplash",
+  m_h:"كم مرة تكون الصورة الأولى هي الصحيحة",
+  m_p1:"كل استعلام اختبار هو وصف كُتب لصورة محددة. الرقم هو النسبة المئوية للاستعلامات التي تظهر فيها تلك الصورة أولًا من بين 1,000 صورة.",
+  t_set:"Recall@1، %",t_flickr:"صور اختبار Flickr8k، من النوع الذي تدرّب عليه النموذج",t_xtd:"صور XTD، لم تُرَ في التدريب",t_before:"قبل الضبط الدقيق",t_after:"بعده، كما يعمل هنا",
+  m_p2:"تتضاعف العربية والتركية تقريبًا على الصور المألوفة. على الصور غير المرئية يكون التحسن نحو نصف ذلك، وتبقى العربية الأضعف: النتيجة الأولى صحيحة في استعلام واحد من كل ثلاثة تقريبًا.",
+  m_p3:"الأرقام من تشغيل تدريب واحد لكل طريقة، ففارق نقطة واحدة يُعدّ ضجيجًا. النموذج في هذه الصفحة هو نسخة int8، وتخسر من 1 إلى 3.5 نقطة مقابل ملف أصغر بأربع مرات.",
+  b_h:"كيف بُني",
+  b_p1:"نموذج صور CLIP يحوّل كل صورة إلى متجه مرة واحدة. لا يُعاد تدريبه أبدًا، فيبقى فهرس الصور صالحًا.",
+  b_p2:"يُدرَّب مرمّز النص متعدد اللغات فقط: تُقرَّب الأوصاف العربية والتركية والإنجليزية من الصور التي تصفها، والجمل العربية من ترجماتها الإنجليزية.",
+  b_p3:"النموذج نفسه يعمل أيضًا كخدمة FastAPI داخل Docker. هنا يعمل في متصفحك عبر ONNX Runtime، مع اقتصار مفرداته على الحرفين اللاتيني والعربي لتوفير 36 ميغابايت.",
+  b_link:"الكود والدفاتر والنتائج الكاملة على GitHub",
+  f1:"الصور من مجموعة بيانات Unsplash Lite وتُحمَّل من Unsplash. كل إطار يرتبط بالصورة وبمصوّرها.",
+  f2:"بيانات التدريب: Flickr8k مع أوصاف عربية وتركية، وأزواج أوصاف MS-COCO العربية. التقييم: اختبار Flickr8k و XTD. إعداد: Read Aloush."}
+};
+const NAMES = {en:"English",tr:"Türkçe",ar:"العربية"};
+const IMG = "https://images.unsplash.com/";
+const params = new URLSearchParams(location.search);
+const ORT_BASE = params.get("ort") || "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+const $ = id => document.getElementById(id);
+const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k]);
+let ui = "en", examples = null, manifest = null, engine = null, current = null, pending = null;
+
+function setUI(lang){
+  ui = T[lang] ? lang : "en";
+  document.documentElement.lang = ui;
+  document.documentElement.dir = ui === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = T[ui][e.dataset.t]);
+  document.querySelectorAll("nav.langs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.ui === ui));
+  $("q").placeholder = T[ui].ph;
+  $("h1label").textContent = T[ui].h1;
+  try { localStorage.setItem("bahth-ui", ui); } catch (e) {}
+  drawTries();
+  if (current) render(current); else if (!pending) $("edgeL").textContent = T[ui].empty;
+  if (pending) $("noticeText").textContent = fill(T[ui].need, {mb: Math.round(manifest.model_bytes / 1e6)});
+}
+function drawTries(){
+  const box = $("tries");
+  box.textContent = "";
+  if (!examples) return;
+  const lead = document.createElement("span");
+  lead.textContent = T[ui].try;
+  box.append(lead);
+  examples[ui].forEach((ex, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = ex.q; b.dir = "auto";
+    b.onclick = () => showExample(ui, i);
+    box.append(b);
+  });
+}
+function showExample(lang, i){
+  const ex = examples[lang][i];
+  $("q").value = ex.q;
+  $("notice").hidden = true; pending = null;
+  current = {q: ex.q, hits: ex.hits, lang, i};
+  render(current);
+}
+function render(r){
+  $("edgeL").innerHTML = "";
+  const b = document.createElement("bdi"); b.textContent = r.q;
+  $("edgeL").append(b);
+  $("edgeR").textContent = r.ms ? fill(T[ui].ms, r.ms) : fill(T[ui].edge, {n: (manifest ? manifest.photos : 24997).toLocaleString("en")});
+  const ol = $("frames");
+  ol.textContent = "";
+  const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--frame-h"));
+  r.hits.forEach(([id, path, by, user, aspect, score], k) => {
+    const li = document.createElement("li");
+    const w = Math.round(Math.min(Math.max(aspect, .6), 2.2) * h);
+    li.style.width = w + "px";
+    const a = document.createElement("a");
+    a.className = "ph"; a.href = `https://unsplash.com/photos/${id}?utm_source=bahth&utm_medium=referral`; a.rel = "noopener";
+    const img = new Image();
+    img.loading = k < 6 ? "eager" : "lazy"; img.alt = fill(T[ui].by, {n: by}); img.width = w; img.height = h;
+    img.src = `${IMG}${path}?h=${Math.round(h * 2)}&q=72&auto=format&fit=max`;
+    a.append(img);
+    const cap = document.createElement("div"); cap.className = "cap";
+    const n = document.createElement("b"); n.textContent = k + 1; n.title = score.toFixed(3);
+    const who = document.createElement("a");
+    who.href = `https://unsplash.com/@${user}?utm_source=bahth&utm_medium=referral`; who.rel = "noopener"; who.textContent = by; who.dir = "auto";
+    cap.append(n, who);
+    li.append(a, cap);
+    if (k === 0) li.insertAdjacentHTML("beforeend", '<svg class="pick" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M52 4C24 2 5 20 4 48c-1 30 20 48 48 48 27 0 46-18 45-47C96 22 78 6 50 7c-9 0-16 2-22 5"/></svg>');
+    ol.append(li);
+  });
+  const also = $("also");
+  also.textContent = ""; also.hidden = r.i === undefined;
+  if (r.i !== undefined) {
+    const lead = document.createElement("span"); lead.textContent = T[ui].also; also.append(lead);
+    for (const l of ["ar", "tr", "en"]) if (l !== r.lang) {
+      const s = document.createElement("span"), b2 = document.createElement("button");
+      b2.type = "button"; b2.textContent = NAMES[l] + ": " + examples[l][r.i].q; b2.dir = "auto"; b2.onclick = () => showExample(l, r.i);
+      s.append(b2); also.append(s);
+    }
+  }
+}
+
+/* ---------- tokenizer: BERT normaliser + pre-tokeniser + WordPiece, as in tokenizer.json ---------- */
+const PUNC = /[!-\/:-@\[-`{-~]|\p{P}/u, CTRL = /\p{C}/u, SPACE = /\s|\p{Zs}/u;
+function isCJK(c){const o = c.codePointAt(0);
+  return (o>=0x4E00&&o<=0x9FFF)||(o>=0x3400&&o<=0x4DBF)||(o>=0x20000&&o<=0x2A6DF)||(o>=0x2A700&&o<=0x2B73F)||(o>=0x2B740&&o<=0x2B81F)||(o>=0x2B820&&o<=0x2CEAF)||(o>=0xF900&&o<=0xFAFF)||(o>=0x2F800&&o<=0x2FA1F);}
+function words(text){
+  const out = []; let cur = "";
+  const push = () => { if (cur) out.push(cur); cur = ""; };
+  for (const c of text) {
+    if (c === "\t" || c === "\n" || c === "\r" || SPACE.test(c)) { push(); continue; }
+    if (c === "\0" || c === "�" || CTRL.test(c)) continue;
+    if (PUNC.test(c) || isCJK(c)) { push(); out.push(c); continue; }
+    cur += c;
+  }
+  push();
+  return out;
+}
+function tokenize(text, vocab, maxTokens){
+  const unk = vocab.get("[UNK]"), ids = [];
+  for (const w of words(text)) {
+    const chars = Array.from(w);
+    if (chars.length > 100) { ids.push(unk); continue; }
+    let start = 0; const piece = [];
+    while (start < chars.length) {
+      let end = chars.length, found = -1;
+      while (end > start) {
+        const id = vocab.get((start ? "##" : "") + chars.slice(start, end).join(""));
+        if (id !== undefined) { found = id; break; }
+        end--;
+      }
+      if (found < 0) { piece.length = 0; piece.push(unk); break; }
+      piece.push(found); start = end;
+    }
+    ids.push(...piece);
+  }
+  return [vocab.get("[CLS]"), ...ids.slice(0, maxTokens - 2), vocab.get("[SEP]")];
+}
+
+/* ---------- model and index, loaded only when someone types their own query ---------- */
+async function fetchParts(base, names, onBytes){
+  const bufs = new Array(names.length); let next = 0;
+  async function worker(){
+    while (next < names.length) {
+      const k = next++;
+      const r = await fetch(base + names[k]);
+      if (!r.ok) throw new Error(names[k] + " " + r.status);
+      bufs[k] = new Uint8Array(await r.arrayBuffer());
+      onBytes(bufs[k].length);
+    }
+  }
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  const out = new Uint8Array(bufs.reduce((n, b) => n + b.length, 0)); let o = 0;
+  for (const b of bufs) { out.set(b, o); o += b.length; }
+  return out;
+}
+function halfToFloat(u16){
+  const f = new Float32Array(u16.length), lut = new Float32Array(65536);
+  for (let h = 0; h < 65536; h++) {
+    const s = h & 0x8000 ? -1 : 1, e = (h >> 10) & 31, m = h & 1023;
+    lut[h] = e === 0 ? s * m * 2 ** -24 : e === 31 ? (m ? NaN : s * Infinity) : s * (1 + m / 1024) * 2 ** (e - 15);
+  }
+  for (let i = 0; i < u16.length; i++) f[i] = lut[u16[i]];
+  return f;
+}
+function loadScript(src){return new Promise((ok, no) => {const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => no(new Error("onnxruntime " + src)); document.head.append(s);});}
+async function loadEngine(progress){
+  const total = manifest.model_bytes + manifest.photos * manifest.dim * 2; let got = 0;
+  const tick = n => { got += n; progress(got, total); };
+  const [modelBytes, embBytes, vocabList, photos] = await Promise.all([
+    fetchParts("model/", manifest.model, tick), fetchParts("gallery/", manifest.gallery, tick),
+    fetch("model/vocab.json").then(r => r.json()), fetch("gallery/photos.json").then(r => r.json()), loadScript(ORT_BASE + "ort.min.js")]);
+  progress(total, total, true);
+  ort.env.wasm.wasmPaths = new URL(ORT_BASE, location.href).href;
+  const session = await ort.InferenceSession.create(modelBytes, {executionProviders: ["wasm"]});
+  const vocab = new Map(vocabList.map((t, i) => [t, i]));
+  const emb = halfToFloat(new Uint16Array(embBytes.buffer, embBytes.byteOffset, embBytes.length / 2));
+  const dim = manifest.dim, n = manifest.photos;
+  async function encode(text){
+    const ids = tokenize(text, vocab, manifest.max_tokens);
+    const feed = {input_ids: new ort.Tensor("int64", BigInt64Array.from(ids.map(BigInt)), [1, ids.length]),
+                  attention_mask: new ort.Tensor("int64", BigInt64Array.from(ids.map(() => 1n)), [1, ids.length])};
+    const v = Float32Array.from((await session.run(feed)).embedding.data);
+    let norm = 0; for (const x of v) norm += x * x; norm = Math.sqrt(norm) || 1;
+    return v.map(x => x / norm);
+  }
+  function search(v, k){
+    const sim = new Float32Array(n);
+    for (let i = 0, o = 0; i < n; i++) { let s = 0; for (let d = 0; d < dim; d++) s += emb[o++] * v[d]; sim[i] = s; }
+    const top = [];
+    for (let i = 0; i < n; i++) {
+      if (top.length < k || sim[i] > sim[top[top.length - 1]]) {
+        let j = top.length; top.push(i);
+        while (j > 0 && sim[top[j - 1]] < sim[i]) { top[j] = top[j - 1]; j--; }
+        top[j] = i; if (top.length > k) top.pop();
+      }
+    }
+    return top.map(i => [...photos[i], sim[i]]);
+  }
+  return {encode, search, ids: t => tokenize(t, vocab, manifest.max_tokens)};
+}
+async function runOwn(q){
+  const bar = $("bar"), fillBar = bar.firstElementChild;
+  try {
+    if (!engine) {
+      $("load").hidden = true; bar.hidden = false;
+      engine = await loadEngine((a, b, done) => {
+        fillBar.style.width = (100 * a / b).toFixed(1) + "%";
+        $("noticeText").textContent = done ? T[ui].starting : fill(T[ui].loading, {a: Math.round(a / 1e6), b: Math.round(b / 1e6)});
+      });
+      window.bahth = engine;
+    }
+    $("notice").hidden = true; pending = null;
+    const t0 = performance.now(), v = await engine.encode(q), t1 = performance.now(), hits = engine.search(v, 12), t2 = performance.now();
+    current = {q, hits, ms: {e: Math.round(t1 - t0), s: Math.round(t2 - t1)}};
+    render(current);
+  } catch (err) {
+    engine = null; bar.hidden = true; $("load").hidden = false; $("notice").hidden = false;
+    $("noticeText").textContent = fill(T[ui].fail, {m: err.message || err});
+  }
+}
+$("form").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const q = $("q").value.trim();
+  if (!q) { $("q").focus(); return; }
+  for (const l in examples || {}) { const i = examples[l].findIndex(e => e.q === q); if (i >= 0 && !engine) return showExample(l, i); }
+  if (engine) return runOwn(q);
+  pending = q;
+  $("noticeText").textContent = fill(T[ui].need, {mb: Math.round(manifest.model_bytes / 1e6)});
+  $("load").hidden = false; $("bar").hidden = true; $("notice").hidden = false;
+});
+$("load").addEventListener("click", () => runOwn(pending || $("q").value.trim()));
+document.querySelectorAll("nav.langs button").forEach(b => b.addEventListener("click", () => setUI(b.dataset.ui)));
+
+(async function start(){
+  let saved = null; try { saved = localStorage.getItem("bahth-ui"); } catch (e) {}
+  const guess = (navigator.language || "en").slice(0, 2).toLowerCase();
+  setUI(params.get("lang") || saved || (T[guess] ? guess : "en"));
+  try {
+    [examples, manifest] = await Promise.all([fetch("examples.json").then(r => r.json()), fetch("manifest.json").then(r => r.json())]);
+    drawTries();
+    showExample(ui, 0);
+  } catch (err) {
+    $("edgeL").textContent = fill(T[ui].fail, {m: err.message});
+  }
+})();
+</script>
+</body>
+</html>
