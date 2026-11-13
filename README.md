@@ -4,7 +4,7 @@ Search photos by typing in Arabic, Turkish or English.
 
 A compact multilingual CLIP finds the right photo first for about half of English queries but only a quarter of Arabic and Turkish ones. This project measures that gap, closes most of it by fine-tuning the text encoder, and checks the gain on photos the model never trained on.
 
-Status: the model, the export and the search service are done and reported below. A demo page is next.
+**Live demo: https://readaloush.github.io/bahth/** The example searches open at once; typing your own query downloads the model (99 MB) and runs it in the browser.
 
 ## Results
 
@@ -79,6 +79,8 @@ docker run -p 8000:8000 -v "$PWD/artifacts:/app/artifacts:ro" bahth
 ```
 
 The tests (`pytest tests`) cover the serving path with a small stand-in model. The Docker image has not been built in CI yet.
+
+The demo page (`docs/`) runs the same int8 model with ONNX Runtime Web. `tools/build_demo.py` cuts the vocabulary to Latin- and Arabic-script tokens (119,547 to 72,513, which saves 36 MB and changes nothing for queries in those scripts) and writes the files in parts. `tests/browser_check.py` drives the page in headless Chrome and checks that its tokeniser returns the same ids as the `tokenizers` library and that typed queries return the same photos as the Python service.
 
 ## Run it
 
