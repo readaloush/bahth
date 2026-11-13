@@ -269,7 +269,7 @@ function render(r){
   $("edgeL").innerHTML = "";
   const b = document.createElement("bdi"); b.textContent = r.q;
   $("edgeL").append(b);
-  $("edgeR").textContent = r.ms ? fill(T[ui].ms, r.ms) : fill(T[ui].edge, {n: (manifest ? manifest.photos : 24997).toLocaleString("en")});
+  $("edgeR").textContent = r.ms ? fill(T[ui].ms, r.ms) : fill(T[ui].edge, {n: (manifest ? manifest.photos : 24997).toLocaleString(ui === "tr" ? "tr" : "en")});
   const ol = $("frames");
   ol.textContent = "";
   const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--frame-h"));
